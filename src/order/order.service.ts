@@ -21,12 +21,13 @@ export class OrderService {
 
   findAll() {
     //return `This action returns all order`;
-    return this.orderModel.find().exec();
+    return this.orderModel.find().populate('customerId').exec();
+    
   }
 
   findByCustomer(id: string) {
     //return `This action returns all order by customer #${id}`;
-    return this.orderModel.find({ customerId: id }).exec();
+    return this.orderModel.find({ customerId: id }).populate('customerId').exec();
   }
 
   findOne(id: string) {

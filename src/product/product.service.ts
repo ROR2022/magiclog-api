@@ -7,17 +7,16 @@ import { uploadOneFileToBucket } from 'src/lib/awsLib';
 
 @Injectable()
 export class ProductService {
-
   constructor(
     //eslint-disable-next-line
     @Inject('PRODUCT_MODEL')
     private productModel: Model<Product>,
-  ) { }
+  ) {}
 
   async create(createProductDto: CreateProductDto, file?: Express.Multer.File) {
     //return 'This action adds a new product';
     const createdProduct = new this.productModel(createProductDto);
-    const newProduct:any= await createdProduct.save();
+    const newProduct: any = await createdProduct.save();
     const { _id } = newProduct;
     if (file) {
       const urlFile = await uploadOneFileToBucket(file, _id);
@@ -43,10 +42,24 @@ export class ProductService {
     return this.productModel.find({ vendorId: id }).exec();
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
-    //return `This action updates a #${id} product`;
-    const updatedProduct = await this.productModel.findByIdAndUpdate(id, updateProductDto, {new:true}).exec();
-    return updatedProduct;
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+    file?: Express.Multer.File,
+  ) {
+    try {
+      if (file) {
+        const urlFile = await uploadOneFileToBucket(file, id);
+        if (typeof urlFile === 'string') updateProductDto.imageUrl = urlFile;
+      }
+      const updatedProduct = await this.productModel
+        .findByIdAndUpdate(id, updateProductDto, { new: true })
+        .exec();
+      return updatedProduct;
+    } catch (error) {
+      console.log(error);
+      throw new Error('Error updating product');
+    }
   }
 
   remove(id: string) {

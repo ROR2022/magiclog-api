@@ -44,9 +44,25 @@ export class ProductController {
     return this.productService.findByVendor(id);
   }
 
+  @UseInterceptors(FileInterceptor('file'))
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(id, updateProductDto);
+  update(
+    @Param('id') id: string, 
+    @Body() updateProductDto: UpdateProductDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: /\/(jpg|jpeg|png)$/,
+        })
+        .build({
+          exceptionFactory: (errors) =>
+            new HttpException(errors, HttpStatus.BAD_REQUEST),
+          fileIsRequired: false, // this means that the file is optional
+        }),
+    )
+    file?: Express.Multer.File,
+  ) {
+    return this.productService.update(id, updateProductDto , file);
   }
 
   @Delete(':id')
