@@ -18,6 +18,11 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @Get('names')
+  findAllNames() {
+    return this.userService.findAllVendorsNames();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);

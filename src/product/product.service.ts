@@ -4,6 +4,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Model } from 'mongoose';
 import { Product } from './entities/product.entity';
 import { uploadOneFileToBucket } from 'src/lib/awsLib';
+import { TFilter } from './product.controller';
 
 @Injectable()
 export class ProductService {
@@ -29,7 +30,34 @@ export class ProductService {
 
   findAll() {
     //return `This action returns all product`;
-    return this.productModel.find().exec();
+    return this.productModel.find().sort({createdAt:-1}).exec();
+  }
+
+  getAllByFilter(body: TFilter) {
+    const { query, price, vendorId } = body;
+    let filter = {};
+    if (query) {
+      filter = {
+        ...filter,
+        $or: [
+          { name: { $regex: query, $options: 'i' } },
+          { sku: { $regex: query, $options: 'i' } },
+        ],
+      };
+    }
+    if (price) {
+      filter = {
+        ...filter,
+        price: { $lte: price },
+      };
+    }
+    if (vendorId) {
+      filter = {
+        ...filter,
+        vendorId,
+      };
+    }
+    return this.productModel.find(filter).sort({createdAt:-1}).exec();
   }
 
   findOne(id: string) {
@@ -39,7 +67,7 @@ export class ProductService {
 
   findByVendor(id: string) {
     //return `This action returns all product by vendor #${id}`;
-    return this.productModel.find({ vendorId: id }).exec();
+    return this.productModel.find({ vendorId: id }).sort({createdAt:-1}).exec();
   }
 
   async update(

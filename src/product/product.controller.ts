@@ -4,6 +4,12 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
+export type TFilter = {
+  query?: string;
+  price?: number;
+  vendorId?: string;
+}
+
 @Controller('product')
 export class ProductController {
   //eslint-disable-next-line
@@ -27,6 +33,11 @@ export class ProductController {
     file?: Express.Multer.File,
   ) {
     return this.productService.create(createProductDto, file);
+  }
+
+  @Post('filter')
+  getAllByFilter(@Body() dataFilter: TFilter) {
+    return this.productService.getAllByFilter(dataFilter);
   }
 
   @Get()

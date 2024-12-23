@@ -25,6 +25,16 @@ export class UserService {
     return this.userModel.find().exec();
   }
 
+  findAllVendorsNames() {
+    try {
+      return this.userModel.find({roles:{$in:['seller']}}).select('name').exec();  
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+    
+  }
+
   findOne(id: string) {
     //return `This action returns a #${id} user`;
     return this.userModel.findById(id).exec();
